@@ -1,0 +1,341 @@
+<%- include('partials/header', { title: 'Avaliações' }) %>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f5f1ea;
+    color: #2b2b2b;
+  }
+
+  .avaliacoes-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+
+  .page-title {
+    color: #6B4F3A;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .card h2 {
+    margin: 0 0 15px;
+    color: #6B4F3A;
+    font-size: 17px;
+  }
+
+  /* LIVRO PARA AVALIAR */
+  .livro-avaliar {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .livro-avaliar:last-child {
+    border-bottom: none;
+  }
+
+  .livro-avaliar img {
+    width: 70px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .livro-avaliar-info {
+    flex: 1;
+  }
+
+  .livro-avaliar-info h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+  }
+
+  .livro-avaliar-info p {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #888;
+  }
+
+  .estrelas-input {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .estrelas-input i {
+    color: #ddd;
+    transition: color .15s;
+  }
+
+  .estrelas-input i.ativa {
+    color: #d9a441;
+  }
+
+  .livro-avaliar textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  .livro-avaliar textarea:focus {
+    border-color: #6B4F3A;
+  }
+
+  .livro-avaliar button {
+    padding: 9px 18px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .livro-avaliar button:hover {
+    background: #58402f;
+  }
+
+  /* AVALIAÇÕES JÁ FEITAS */
+  .avaliacao-feita {
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .avaliacao-feita:last-child {
+    border-bottom: none;
+  }
+
+  .avaliacao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .avaliacao-header strong {
+    font-size: 14px;
+  }
+
+  .avaliacao-estrelas {
+    color: #d9a441;
+    font-size: 14px;
+  }
+
+  .avaliacao-estrelas i.vazia {
+    color: #ddd;
+  }
+
+  .avaliacao-feita p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .empty {
+    color: #777;
+    font-style: italic;
+  }
+</style>
+
+<div class="avaliacoes-container">
+
+  <h1 class="page-title">Avaliações</h1>
+
+  <div class="card">
+
+    <h2>Livros para avaliar</h2>
+
+    <% if(livrosParaAvaliar.length === 0){ %>
+
+      <p class="empty">
+        Nenhum livro pendente de avaliação. Marque livros como "Lido" na sua estante para avaliá-los aqui.
+      </p>
+
+    <% } %>
+
+    <% livrosParaAvaliar.forEach(livro => { %>
+
+      <div class="livro-avaliar" data-livro="<%= livro.titulo %>">
+
+        <img src="<%= livro.capa %>">
+
+        <div class="livro-avaliar-info">
+
+          <h3><%= livro.titulo %></h3>
+          <p><%= livro.autor %></p>
+
+          <div class="estrelas-input">
+
+            <% for(let i = 1; i <= 5; i++){ %>
+              <i class="fa-solid fa-star" data-valor="<%= i %>"></i>
+            <% } %>
+
+          </div>
+
+          <textarea
+            class="texto-resenha"
+            rows="2"
+            placeholder="Escreva sua resenha..."
+          ></textarea>
+
+          <button
+            class="btn-avaliar"
+            data-titulo="<%= livro.titulo %>"
+            data-autor="<%= livro.autor %>"
+            data-capa="<%= livro.capa %>"
+          >
+            Publicar avaliação
+          </button>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Suas avaliações</h2>
+
+    <% if(avaliacoes.length === 0){ %>
+
+      <p class="empty">
+        Você ainda não avaliou nenhum livro.
+      </p>
+
+    <% } %>
+
+    <% avaliacoes.forEach(post => { %>
+
+      <div class="avaliacao-feita">
+
+        <div class="avaliacao-header">
+
+          <strong><%= post.livro %></strong>
+
+          <div class="avaliacao-estrelas">
+
+            <% for(let i = 1; i <= 5; i++){ %>
+              <i class="fa-solid fa-star <%= i > post.nota ? 'vazia' : '' %>"></i>
+            <% } %>
+
+          </div>
+
+        </div>
+
+        <p><%= post.texto %></p>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+</div>
+
+<script>
+
+document.querySelectorAll(".livro-avaliar").forEach(card => {
+
+    const estrelas = card.querySelectorAll(".estrelas-input i");
+    let notaSelecionada = 0;
+
+    estrelas.forEach(estrela => {
+
+        estrela.addEventListener("click", () => {
+
+            notaSelecionada = Number(estrela.dataset.valor);
+
+            estrelas.forEach(e => {
+
+                if (Number(e.dataset.valor) <= notaSelecionada) {
+                    e.classList.add("ativa");
+                } else {
+                    e.classList.remove("ativa");
+                }
+
+            });
+
+        });
+
+    });
+
+    const botao = card.querySelector(".btn-avaliar");
+
+    botao.addEventListener("click", async () => {
+
+        const texto = card.querySelector(".texto-resenha").value.trim();
+
+        if (notaSelecionada === 0) {
+            alert("Selecione uma nota de 1 a 5 estrelas.");
+            return;
+        }
+
+        if (!texto) {
+            alert("Escreva sua resenha.");
+            return;
+        }
+
+        try {
+
+            const resposta = await fetch("/avaliacoes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    livro: botao.dataset.titulo,
+                    autor: botao.dataset.autor,
+                    capa: botao.dataset.capa,
+                    texto,
+                    nota: notaSelecionada
+                })
+            });
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+                location.reload();
+            } else {
+                alert(dados.msg || "Erro ao publicar avaliação.");
+            }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão.");
+        }
+
+    });
+
+});
+
+</script>
+
+<%- include('partials/footer') %>

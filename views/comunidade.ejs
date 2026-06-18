@@ -1,0 +1,518 @@
+<%- include('partials/header', { title: 'Comunidade' }) %>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f5f1ea;
+    color: #2b2b2b;
+  }
+
+  .comunidade-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+
+  .page-title {
+    color: #6B4F3A;
+    margin-bottom: 20px;
+  }
+
+  .novo-post {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .novo-post h2 {
+    margin: 0 0 15px;
+    color: #6B4F3A;
+    font-size: 17px;
+  }
+
+  .novo-post select,
+  .novo-post textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  .novo-post select:focus,
+  .novo-post textarea:focus {
+    border-color: #6B4F3A;
+  }
+
+  .novo-post button {
+    padding: 10px 22px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .novo-post button:hover {
+    background: #58402f;
+  }
+
+  /* CARD POST */
+  .post-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .post-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #6B4F3A;
+  }
+
+  .post-author strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .post-author span {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .post-book {
+    display: flex;
+    gap: 12px;
+    background: #f9f6f1;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .post-book img {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .post-book-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .post-book-info strong {
+    font-size: 14px;
+  }
+
+  .post-book-info span {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .post-nota {
+    color: #d9a441;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .post-nota i.vazia {
+    color: #ddd;
+  }
+
+  .post-texto {
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .post-actions {
+    display: flex;
+    gap: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
+
+  .post-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #777;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+  }
+
+  .post-actions button:hover {
+    color: #6B4F3A;
+  }
+
+  .post-actions i.fa-heart.curtido {
+    color: #c0392b;
+  }
+
+  /* COMENTÁRIOS */
+  .comentarios {
+    margin-top: 14px;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
+
+  .comentario {
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #555;
+  }
+
+  .comentario strong {
+    color: #6B4F3A;
+  }
+
+  .form-comentario {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .form-comentario input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .form-comentario input:focus {
+    border-color: #6B4F3A;
+  }
+
+  .form-comentario button {
+    padding: 9px 16px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .empty {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 30px 0;
+  }
+</style>
+
+<div class="comunidade-container">
+
+  <h1 class="page-title">Comunidade</h1>
+
+  <div class="novo-post">
+
+    <h2>O que você está lendo?</h2>
+
+    <form id="formNovoPost">
+
+      <select id="livroSelect" required>
+
+        <option value="" disabled selected>
+          Selecione um livro da sua estante
+        </option>
+
+        <% livros.forEach(livro => { %>
+
+          <option
+            value="<%= livro.titulo %>"
+            data-autor="<%= livro.autor %>"
+            data-capa="<%= livro.capa %>"
+          >
+            <%= livro.titulo %>
+          </option>
+
+        <% }) %>
+
+      </select>
+
+      <textarea
+        id="textoPost"
+        rows="3"
+        placeholder="Compartilhe sua opinião sobre o livro..."
+        required
+      ></textarea>
+
+      <button type="submit">Publicar</button>
+
+    </form>
+
+  </div>
+
+  <% if(posts.length === 0){ %>
+
+    <p class="empty">
+      Nenhuma publicação ainda. Seja o primeiro a compartilhar algo!
+    </p>
+
+  <% } %>
+
+  <% posts.forEach(post => { %>
+
+    <div class="post-card" data-id="<%= post._id %>">
+
+      <div class="post-header">
+
+        <img
+          src="<%= (post.usuario && post.usuario.fotoUrl) || '/images/default-avatar.svg' %>"
+          class="post-avatar"
+        >
+
+        <div class="post-author">
+          <strong><%= post.usuario ? post.usuario.nome : 'Usuário' %></strong>
+          <span>@<%= post.usuario ? post.usuario.username : 'desconhecido' %></span>
+        </div>
+
+      </div>
+
+      <div class="post-book">
+
+        <img src="<%= post.capa %>">
+
+        <div class="post-book-info">
+
+          <strong><%= post.livro %></strong>
+          <span><%= post.autor %></span>
+
+          <% if(post.nota){ %>
+
+            <div class="post-nota">
+
+              <% for(let i = 1; i <= 5; i++){ %>
+
+                <i class="fa-solid fa-star <%= i > post.nota ? 'vazia' : '' %>"></i>
+
+              <% } %>
+
+            </div>
+
+          <% } %>
+
+        </div>
+
+      </div>
+
+      <p class="post-texto"><%= post.texto %></p>
+
+      <div class="post-actions">
+
+        <button class="btn-curtir" data-id="<%= post._id %>">
+          <i class="fa-solid fa-heart"></i>
+          <span class="curtidas-count"><%= post.curtidas %></span>
+        </button>
+
+        <button class="btn-toggle-comentarios">
+          <i class="fa-solid fa-comment"></i>
+          <%= post.comentarios.length %>
+        </button>
+
+      </div>
+
+      <div class="comentarios" style="display:none;">
+
+        <% post.comentarios.forEach(comentario => { %>
+
+          <div class="comentario">
+            <strong><%= comentario.usuario %>:</strong>
+            <%= comentario.texto %>
+          </div>
+
+        <% }) %>
+
+        <div class="form-comentario">
+
+          <input
+            type="text"
+            placeholder="Escreva um comentário..."
+            class="input-comentario"
+          >
+
+          <button class="btn-comentar" data-id="<%= post._id %>">
+            Enviar
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  <% }) %>
+
+</div>
+
+<script>
+
+
+document.getElementById("formNovoPost").addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const select = document.getElementById("livroSelect");
+    const opcao = select.options[select.selectedIndex];
+
+    const livro = select.value;
+    const autor = opcao.dataset.autor;
+    const capa = opcao.dataset.capa;
+    const texto = document.getElementById("textoPost").value.trim();
+
+    if (!livro) {
+        alert("Selecione um livro.");
+        return;
+    }
+
+    if (!texto) {
+        alert("Escreva algo para publicar.");
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch("/posts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ livro, autor, capa, texto })
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            location.reload();
+        } else {
+            alert(dados.msg || "Erro ao publicar.");
+        }
+
+    } catch (erro) {
+        console.error(erro);
+        alert("Erro de conexão.");
+    }
+
+});
+
+
+document.querySelectorAll(".btn-curtir").forEach(botao => {
+
+    botao.addEventListener("click", async () => {
+
+        const id = botao.dataset.id;
+
+        try {
+
+            const resposta = await fetch(`/posts/${id}/curtir`, {
+                method: "POST"
+            });
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+
+                botao.querySelector(".curtidas-count").textContent = dados.curtidas;
+                botao.querySelector("i").classList.add("curtido");
+
+            } else {
+                alert(dados.msg || "Erro ao curtir.");
+            }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão.");
+        }
+
+    });
+
+});
+
+
+
+document.querySelectorAll(".btn-toggle-comentarios").forEach(botao => {
+
+    botao.addEventListener("click", () => {
+
+        const card = botao.closest(".post-card");
+        const comentarios = card.querySelector(".comentarios");
+
+        comentarios.style.display =
+            comentarios.style.display === "none" ? "block" : "none";
+
+    });
+
+});
+
+
+document.querySelectorAll(".btn-comentar").forEach(botao => {
+
+    botao.addEventListener("click", async () => {
+
+        const id = botao.dataset.id;
+        const card = botao.closest(".post-card");
+        const input = card.querySelector(".input-comentario");
+        const texto = input.value.trim();
+
+        if (!texto) {
+            return;
+        }
+
+        try {
+
+            const resposta = await fetch(`/posts/${id}/comentar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ texto })
+            });
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+                location.reload();
+            } else {
+                alert(dados.msg || "Erro ao comentar.");
+            }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão.");
+        }
+
+    });
+
+});
+
+</script>
+
+<%- include('partials/footer') %>

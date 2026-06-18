@@ -1,0 +1,510 @@
+<%- include('partials/header', { title: 'Minha Estante', usuario: usuario }) %>
+
+<div class="dashboard">
+
+  
+    <section class="card">
+
+        <h2>Adicionar Livro</h2>
+
+        <div class="pesquisa-livro">
+
+            <input
+                type="text"
+                id="buscaLivro"
+                placeholder="Pesquise um livro..."
+                class="campo"
+            >
+
+            <button
+                class="btn-publicar"
+                onclick="buscarLivros()"
+            >
+                Buscar
+            </button>
+
+        </div>
+
+        <div id="resultadoBusca"></div>
+
+    </section>
+
+    <!-- MINHA ESTANTE -->
+    <section class="card">
+
+        <h2>Minha Estante</h2>
+
+        <div class="livros-grid">
+
+            <% if(livros.length === 0){ %>
+
+                <p class="sem-livros">
+                    Você ainda não adicionou nenhum livro.
+                </p>
+
+            <% } %>
+
+            <% livros.forEach(livro => { %>
+
+                <div class="livro-card">
+
+                    <div class="menu-livro">
+
+                        <button
+                            class="btn-menu"
+                            onclick="toggleMenu('<%= livro._id %>')"
+                        >
+                            ⋮
+                        </button>
+
+                        <div
+    class="dropdown"
+    id="menu-<%= livro._id %>"
+>
+
+    <button
+        onclick="alterarStatus('<%= livro._id %>', 'Quero Ler')"
+    >
+    Quero Ler
+    </button>
+
+    <button
+        onclick="alterarStatus('<%= livro._id %>', 'Lendo')"
+    >
+    Lendo
+    </button>
+
+    <button
+        onclick="alterarStatus('<%= livro._id %>', 'Lido')"
+    >
+     Lido
+    </button>
+
+    <button
+        onclick="removerLivro('<%= livro._id %>')"
+    >
+     Remover Livro
+    </button>
+
+</div>
+
+                    </div>
+
+                    <img
+                        src="<%= livro.capa %>"
+                        class="mini-capa"
+                        onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'"
+                    >
+
+                    <h4><%= livro.titulo %></h4>
+
+                    <p><%= livro.autor %></p>
+
+                    <small class="status">
+                        <%= livro.status %>
+                    </small>
+
+                </div>
+
+            <% }) %>
+
+        </div>
+
+    </section>
+
+</div>
+
+<style>
+
+.dashboard{
+    max-width:1200px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    margin-bottom:30px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
+
+.campo{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#f4f4f4;
+}
+
+.pesquisa-livro{
+    display:flex;
+    gap:10px;
+}
+
+#resultadoBusca{
+    margin-top:25px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:20px;
+}
+
+.resultado-card,
+.livro-card{
+    position:relative;
+    background:#fff;
+    padding:20px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.resultado-card img,
+.mini-capa{
+    width:120px;
+    height:180px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+.livros-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:20px;
+}
+
+.livro-card h4,
+.resultado-card h4{
+    margin-top:15px;
+    color:#6B4F3A;
+}
+
+.livro-card p,
+.resultado-card p{
+    color:#666;
+    margin:10px 0;
+}
+
+.status{
+    display:inline-block;
+    margin-top:10px;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.status-Quero-Ler{
+    background:#eee7ff;
+    color:#6B4F9E;
+}
+
+.status-Lendo{
+    background:#fff4d9;
+    color:#c58b00;
+}
+
+.status-Lido{
+    background:#e6f7ea;
+    color:#2e8b57;
+}
+
+.menu-livro{
+    position:absolute;
+    top:15px;
+    right:15px;
+}
+
+.btn-menu{
+    width:35px;
+    height:35px;
+    border:none;
+    border-radius:50%;
+    background:white;
+    font-size:22px;
+    cursor:pointer;
+    box-shadow:0 2px 10px rgba(0,0,0,.12);
+}
+
+.dropdown{
+    display:none;
+    position:absolute;
+    right:0;
+    top:45px;
+    background:white;
+    min-width:170px;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    z-index:100;
+}
+
+.dropdown button{
+    width:100%;
+    padding:14px;
+    border:none;
+    background:none;
+    text-align:left;
+    cursor:pointer;
+}
+
+.dropdown button:hover{
+    background:#f5f5f5;
+}
+
+.sem-livros{
+    color:#777;
+}
+
+</style>
+
+<script>
+
+function toggleMenu(id){
+
+    const menu =
+        document.getElementById(`menu-${id}`);
+
+    document
+        .querySelectorAll(".dropdown")
+        .forEach(drop => {
+
+            if(drop !== menu){
+                drop.style.display = "none";
+            }
+
+        });
+
+    menu.style.display =
+        menu.style.display === "block"
+        ? "none"
+        : "block";
+
+}
+
+document.addEventListener("click", e => {
+
+    if(!e.target.closest(".menu-livro")){
+
+        document
+            .querySelectorAll(".dropdown")
+            .forEach(drop => {
+
+                drop.style.display = "none";
+
+            });
+
+    }
+
+});
+async function buscarLivros(){
+
+    const termo =
+        document.getElementById("buscaLivro")
+        .value
+        .trim();
+
+    if(!termo){
+        alert("Digite o nome de um livro.");
+        return;
+    }
+
+    try{
+
+        const resposta =
+            await fetch(
+                `https://openlibrary.org/search.json?q=${encodeURIComponent(termo)}`
+            );
+
+        const dados =
+            await resposta.json();
+
+        const resultado =
+            document.getElementById("resultadoBusca");
+
+        resultado.innerHTML = "";
+
+        if(dados.docs.length === 0){
+
+            resultado.innerHTML =
+                "<p>Nenhum livro encontrado.</p>";
+
+            return;
+        }
+
+        dados.docs
+            .slice(0,8)
+            .forEach(livro => {
+
+                const titulo =
+                    livro.title || "Sem título";
+
+                const autor =
+                    livro.author_name
+                    ? livro.author_name[0]
+                    : "Autor desconhecido";
+
+                const capa =
+                    livro.cover_i
+                    ? `https://covers.openlibrary.org/b/id/${livro.cover_i}-L.jpg`
+                    : "https://via.placeholder.com/120x180?text=Sem+Capa";
+
+                const id =
+                    livro.key.replace(/\//g,"");
+
+                resultado.innerHTML += `
+
+                    <div class="resultado-card">
+
+                        <img
+                            src="${capa}"
+                            onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'"
+                        >
+
+                        <h4>${titulo}</h4>
+
+                        <p>${autor}</p>
+
+                        <select
+                            id="status-${id}"
+                            class="campo"
+                        >
+                            <option>Quero Ler</option>
+                            <option>Lendo</option>
+                            <option>Lido</option>
+                        </select>
+
+                        <button
+                            class="btn-publicar"
+                            onclick="adicionarLivro(
+                                '${titulo.replace(/'/g,"\\'")}',
+                                '${autor.replace(/'/g,"\\'")}',
+                                '${capa}',
+                                '${id}'
+                            )"
+                        >
+                            Adicionar
+                        </button>
+
+                    </div>
+
+                `;
+
+            });
+
+    }catch(err){
+
+        console.error(err);
+        alert("Erro ao buscar livros.");
+
+    }
+
+}
+
+async function adicionarLivro(
+    titulo,
+    autor,
+    capa,
+    id
+){
+
+    const status =
+        document.getElementById(
+            `status-${id}`
+        ).value;
+
+    try{
+
+        const resposta =
+            await fetch("/estante/add", {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    titulo,
+                    autor,
+                    capa,
+                    status
+
+                })
+
+            });
+
+        const dados =
+            await resposta.json();
+
+        alert(dados.msg);
+
+        location.reload();
+
+    }catch(err){
+
+        console.error(err);
+        alert("Erro ao adicionar livro.");
+
+    }
+
+}
+
+async function removerLivro(id){
+
+    const confirmar =
+        confirm("Deseja remover este livro?");
+
+    if(!confirmar){
+        return;
+    }
+
+    const resposta =
+        await fetch(`/estante/${id}`,{
+            method:"DELETE"
+        });
+
+    const dados =
+        await resposta.json();
+
+    alert(dados.msg);
+
+    location.reload();
+
+}
+async function alterarStatus(id, status){
+
+    try{
+
+        const resposta = await fetch(
+            `/estante/${id}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    status
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        alert(dados.msg);
+
+        location.reload();
+
+    }catch(err){
+
+        console.error(err);
+        alert("Erro ao atualizar status.");
+
+    }
+
+}
+</script>
+
+<%- include('partials/footer') %>

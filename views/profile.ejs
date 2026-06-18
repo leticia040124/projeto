@@ -1,0 +1,1003 @@
+<%- include('partials/header', { title: 'Meu Perfil' }) %>
+
+<style>
+
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f5f1ea;
+    color: #2b2b2b;
+  }
+
+  .profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+
+ 
+  .profile-hero {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+
+  .avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #6B4F3A;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: block;
+  }
+
+  .avatar-edit {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #6B4F3A;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border: 3px solid #f5f1ea;
+    transition: background .2s;
+  }
+
+  .avatar-wrapper:hover .avatar-edit {
+    background: #58402f;
+  }
+
+  .avatar-input {
+    display: none;
+  }
+
+  .username {
+    color: #777;
+    margin-top: 5px;
+  }
+
+    .perfil-stats{
+    display:flex;
+    gap:30px;
+    margin-top:15px;
+    color:#666;
+}
+
+.perfil-stats span{
+    font-size:15px;
+}
+
+.perfil-stats strong{
+    color:#6B4F3A;
+    font-size:18px;
+}
+
+  .btn-estante {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #6B4F3A;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+
+  .btn-editar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    margin-right: 8px;
+    padding: 9px 18px;
+    background: #fff;
+    color: #6B4F3A;
+    border: 2px solid #6B4F3A;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+
+  .btn-editar:hover {
+    background: #6B4F3A;
+    color: #fff;
+  }
+
+  
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  }
+
+  .modal-box h3 {
+    margin: 0 0 20px;
+    color: #6B4F3A;
+  }
+
+  .modal-box label {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 6px;
+  }
+
+  .modal-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: 18px;
+    transition: border-color .2s;
+  }
+
+  .modal-box input:focus {
+    border-color: #6B4F3A;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .modal-actions button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-cancelar {
+    background: #f0ede6;
+    color: #555;
+  }
+
+  .btn-salvar {
+    background: #6B4F3A;
+    color: #fff;
+  }
+
+  .btn-salvar:hover {
+    background: #58402f;
+  }
+
+  
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 28px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    min-width: 110px;
+  }
+
+  .stat-card i {
+    font-size: 20px;
+    color: #6B4F3A;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .stat-card strong {
+    display: block;
+    font-size: 22px;
+    color: #2b2b2b;
+  }
+
+  .stat-card span {
+    font-size: 13px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  
+  .card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .card h2 {
+    margin: 0 0 15px;
+    color: #6B4F3A;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+  }
+
+  .card h2 i {
+    font-size: 16px;
+  }
+
+  
+  .book-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .cover {
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .book-info h3 {
+    margin: 0;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e9e1d6;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: var(--progresso, 0%);
+    background: #6B4F3A;
+    border-radius: 20px;
+    transition: width .3s;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .progress-info span {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .progress-edit {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .progress-edit input {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .progress-edit button {
+    padding: 6px 12px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .progress-edit button:hover {
+    background: #58402f;
+  }
+
+ 
+  .shelf {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .shelf-item {
+    position: relative;
+  }
+
+  .shelf-cover {
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .tag {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: #6B4F3A;
+    color: white;
+  }
+
+
+  .post {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .post:last-child {
+    border-bottom: none;
+  }
+
+  .post p {
+    margin: 0;
+  }
+
+  .post .curtidas {
+    color: #999;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .curtidas i {
+    color: #c0392b;
+  }
+
+  .empty {
+    color: #777;
+    font-style: italic;
+  }
+
+  /* LOGIN */
+  .login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 35px 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    text-align: center;
+  }
+
+  .login-container h1 {
+    color: #6B4F3A;
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .campo {
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .campo:focus {
+    border-color: #6B4F3A;
+  }
+
+  .btn-login {
+    padding: 12px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .btn-login:hover {
+    background: #58402f;
+  }
+
+  .login-container p {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .login-container p a {
+    color: #6B4F3A;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .login-container p a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<% if(!usuario){ %>
+
+<div class="login-container">
+
+    <h1>Entrar no LitFeed</h1>
+
+    <form id="loginForm">
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Email"
+            class="campo"
+            required
+        >
+
+        <input
+            type="password"
+            id="senha"
+            placeholder="Senha"
+            class="campo"
+            required
+        >
+
+        <button
+            type="submit"
+            class="btn-login"
+        >
+            Entrar
+        </button>
+
+        <p>
+            Não possui conta?
+            <a href="/signup">
+                Cadastre-se
+            </a>
+        </p>
+
+    </form>
+
+</div>
+
+<script>
+
+document
+.getElementById("loginForm")
+.addEventListener(
+    "submit",
+    async (e) => {
+
+        e.preventDefault();
+
+        const email =
+            document
+            .getElementById("email")
+            .value;
+
+        const senha =
+            document
+            .getElementById("senha")
+            .value;
+
+        const resposta =
+            await fetch(
+                "/auth/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        senha
+                    })
+                }
+            );
+
+        const dados =
+            await resposta.json();
+
+        if(resposta.ok){
+
+            location.reload();
+
+        }else{
+
+            alert(dados.msg);
+
+        }
+
+    }
+);
+
+</script>
+
+<% } else { %>
+
+<div class="profile-container">
+
+  <section class="profile-hero">
+
+    <div class="avatar-wrapper" id="avatarWrapper">
+
+      <img
+        src="<%= usuario.fotoUrl || '/images/default-avatar.svg' %>"
+        class="avatar"
+        id="avatarImg"
+      >
+
+      <div class="avatar-edit">
+        <i class="fa-solid fa-camera"></i>
+      </div>
+
+      <input
+        type="file"
+        id="avatarInput"
+        class="avatar-input"
+        accept="image/png, image/jpeg, image/webp"
+      >
+
+    </div>
+
+    <h1><%= usuario.nome %></h1>
+
+    <p class="username">
+      @<%= usuario.username %>
+    </p>
+
+    <div class="perfil-stats">
+    <span>
+        <strong><%= (usuario.seguidores || []).length %></strong>
+        seguidores
+    </span>
+
+    <span>
+        <strong><%= (usuario.seguindo || []).length %></strong>
+        seguindo
+    </span>
+</div>
+
+    <button class="btn-editar" id="btnEditarPerfil">
+      <i class="fa-solid fa-pen"></i>
+      Editar perfil
+    </button>
+
+    <a href="/estante" class="btn-estante">
+      Minha Estante
+    </a>
+
+    <div class="stats">
+
+      <div class="stat-card">
+        <i class="fa-solid fa-pen-nib"></i>
+        <strong><%= stats.posts %></strong>
+        <span>Posts</span>
+      </div>
+
+      <div class="stat-card">
+        <i class="fa-solid fa-book"></i>
+        <strong><%= stats.livros %></strong>
+        <span>Livros</span>
+      </div>
+
+      <div class="stat-card">
+        <i class="fa-solid fa-heart"></i>
+        <strong><%= stats.curtidas %></strong>
+        <span>Curtidas</span>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>
+      <i class="fa-solid fa-book-open"></i>
+      Atualmente lendo
+    </h2>
+
+    <% if(livroAtual){ %>
+
+      <div class="book-row">
+
+        <img
+          src="<%= livroAtual.capa %>"
+          class="cover"
+        >
+
+        <div class="book-info" style="flex: 1;">
+
+          <h3>
+            <%= livroAtual.titulo %>
+          </h3>
+
+          <p>
+            <%= livroAtual.autor %>
+          </p>
+
+          <%
+            const total = livroAtual.totalPaginas || 0;
+            const atual = livroAtual.paginaAtual || 0;
+            const porcentagem = total > 0
+              ? Math.min(100, Math.round((atual / total) * 100))
+              : 0;
+          %>
+
+          <div class="progress-bar">
+            <div class="progress-fill" style="--progresso: <%= porcentagem %>%;"></div>
+          </div>
+
+          <div class="progress-info">
+
+            <span id="progressoTexto">
+              <% if(total > 0){ %>
+                <%= atual %> de <%= total %> páginas (<%= porcentagem %>%)
+              <% } else { %>
+                Total de páginas não informado
+              <% } %>
+            </span>
+
+            <div class="progress-edit">
+
+              <input
+                type="number"
+                id="paginaAtualInput"
+                placeholder="Pág. atual"
+                min="0"
+                value="<%= atual %>"
+              >
+
+              <input
+                type="number"
+                id="totalPaginasInput"
+                placeholder="Total"
+                min="0"
+                value="<%= total %>"
+              >
+
+              <button
+                id="btnSalvarProgresso"
+                data-id="<%= livroAtual._id %>"
+              >
+                Salvar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    <% } else { %>
+
+      <p class="empty">
+        Você ainda não está lendo nenhum livro.
+      </p>
+
+    <% } %>
+
+  </section>
+
+  <section class="card">
+
+    <h2>
+      <i class="fa-solid fa-layer-group"></i>
+      Minha Estante
+    </h2>
+
+    <% if(livros && livros.length > 0){ %>
+
+      <div class="shelf">
+
+        <% livros.forEach(livro => { %>
+
+          <div class="shelf-item">
+
+            <img
+              src="<%= livro.capa %>"
+              class="shelf-cover"
+            >
+
+            <span class="tag">
+              <%= livro.status %>
+            </span>
+
+          </div>
+
+        <% }) %>
+
+      </div>
+
+    <% } else { %>
+
+      <p class="empty">
+        Nenhum livro na estante.
+      </p>
+
+    <% } %>
+
+  </section>
+
+  <section class="card">
+
+    <h2>
+      <i class="fa-solid fa-note-sticky"></i>
+      Últimas Publicações
+    </h2>
+
+    <% if(posts.length > 0){ %>
+
+      <% posts.forEach(post => { %>
+
+        <div class="post">
+
+          <p>
+            <%= post.texto %>
+          </p>
+
+          <span class="curtidas">
+            <i class="fa-solid fa-heart"></i>
+            <%= post.curtidas %>
+          </span>
+
+        </div>
+
+      <% }) %>
+
+    <% } else { %>
+
+      <p class="empty">
+        Nenhuma publicação ainda.
+      </p>
+
+    <% } %>
+
+  </section>
+
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div class="modal-overlay" id="modalEditarPerfil">
+
+  <div class="modal-box">
+
+    <h3>Editar perfil</h3>
+
+    <form id="formEditarPerfil">
+
+      <label for="nomeInput">Nome</label>
+
+      <input
+        type="text"
+        id="nomeInput"
+        value="<%= usuario.nome %>"
+        minlength="2"
+        required
+      >
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          id="btnCancelarEdicao"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn-salvar"
+        >
+          Salvar
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script>
+
+const avatarWrapper = document.getElementById("avatarWrapper");
+const avatarInput = document.getElementById("avatarInput");
+const avatarImg = document.getElementById("avatarImg");
+
+avatarWrapper.addEventListener("click", () => {
+    avatarInput.click();
+});
+
+avatarInput.addEventListener("change", async () => {
+
+    const arquivo = avatarInput.files[0];
+
+    if (!arquivo) {
+        return;
+    }
+
+    if (arquivo.size > 5 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 5MB.");
+        return;
+    }
+
+    
+    avatarImg.src = URL.createObjectURL(arquivo);
+
+    const formData = new FormData();
+    formData.append("avatar", arquivo);
+
+    try {
+
+        const resposta = await fetch("/profile/avatar", {
+            method: "POST",
+            body: formData
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            avatarImg.src = dados.fotoUrl;
+        } else {
+            alert(dados.msg || "Erro ao atualizar foto.");
+        }
+
+    } catch (erro) {
+        console.error(erro);
+        alert("Erro de conexão ao enviar a foto.");
+    }
+
+});
+
+
+const btnEditarPerfil = document.getElementById("btnEditarPerfil");
+const modalEditarPerfil = document.getElementById("modalEditarPerfil");
+const btnCancelarEdicao = document.getElementById("btnCancelarEdicao");
+const formEditarPerfil = document.getElementById("formEditarPerfil");
+
+btnEditarPerfil.addEventListener("click", () => {
+    modalEditarPerfil.classList.add("active");
+});
+
+btnCancelarEdicao.addEventListener("click", () => {
+    modalEditarPerfil.classList.remove("active");
+});
+
+modalEditarPerfil.addEventListener("click", (e) => {
+    if (e.target === modalEditarPerfil) {
+        modalEditarPerfil.classList.remove("active");
+    }
+});
+
+formEditarPerfil.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const nome = document.getElementById("nomeInput").value.trim();
+
+    try {
+
+        const resposta = await fetch("/profile/edit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ nome })
+        });
+
+        const dados = await resposta.json();
+
+        if (resposta.ok) {
+            location.reload();
+        } else {
+            alert(dados.msg || "Erro ao atualizar perfil.");
+        }
+
+    } catch (erro) {
+        console.error(erro);
+        alert("Erro de conexão ao salvar perfil.");
+    }
+
+});
+
+
+const btnSalvarProgresso = document.getElementById("btnSalvarProgresso");
+
+if (btnSalvarProgresso) {
+
+    btnSalvarProgresso.addEventListener("click", async () => {
+
+        const id = btnSalvarProgresso.dataset.id;
+
+        const paginaAtual = document.getElementById("paginaAtualInput").value;
+        const totalPaginas = document.getElementById("totalPaginasInput").value;
+
+        try {
+
+            const resposta = await fetch(`/estante/${id}/progresso`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ paginaAtual, totalPaginas })
+            });
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+                location.reload();
+            } else {
+                alert(dados.msg || "Erro ao salvar progresso.");
+            }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão ao salvar progresso.");
+        }
+
+    });
+
+}
+
+</script>
+
+<%- include('partials/footer') %>
+<% } %>

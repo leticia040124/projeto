@@ -1,0 +1,399 @@
+<%- include('partials/header', { title: 'Criar Post' }) %>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f5f1ea;
+    color: #2b2b2b;
+}
+
+.novo-post-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.page-title {
+    color: #6B4F3A;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+
+label:first-of-type {
+    margin-top: 0;
+}
+
+select,
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+
+select:focus,
+textarea:focus {
+    border-color: #6B4F3A;
+}
+
+.livro-preview {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background: #f9f6f1;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.livro-preview img {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.livro-preview-info h4 {
+    margin: 0 0 4px;
+    font-size: 14px;
+}
+
+.livro-preview-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+}
+
+.progresso-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.progresso-row input {
+    width: 90px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+
+.progresso-row input[readonly] {
+    background-color: #f0ede6;
+    color: #555;
+    cursor: not-allowed;
+    border-color: #e0ded8;
+}
+
+.progresso-row span {
+    color: #888;
+    font-size: 14px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.checkbox-row input {
+    width: auto;
+}
+
+.checkbox-row label {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+}
+
+.acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancelar {
+    padding: 11px 22px;
+    background: #f0ede6;
+    color: #555;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-publicar {
+    padding: 11px 22px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.btn-publicar:hover {
+    background: #58402f;
+}
+
+.empty {
+    color: #777;
+    font-style: italic;
+}
+
+</style>
+
+<div class="novo-post-container">
+
+    <h1 class="page-title">Compartilhe sua leitura</h1>
+
+    <div class="card">
+
+        <% if(livros.length === 0){ %>
+
+            <p class="empty">
+                Você ainda não tem livros na estante.
+                Adicione um na <a href="/estante">sua estante</a> antes de postar.
+            </p>
+
+        <% } else { %>
+
+            <form id="formNovoPost">
+
+                <label for="livroSelect">Livro</label>
+
+                <select id="livroSelect" required>
+
+                    <% livros.forEach(livro => { %>
+
+                        <option
+                            value="<%= livro.titulo %>"
+                            data-id="<%= livro._id %>"
+                            data-autor="<%= livro.autor %>"
+                            data-capa="<%= livro.capa %>"
+                            data-pagina="<%= livro.paginaAtual || 0 %>"
+                            data-total="<%= livro.totalPaginas || 0 %>"
+                            <%= (livroAtual && livro._id.equals(livroAtual._id)) ? 'selected' : '' %>
+                        >
+                            <%= livro.titulo %> — <%= livro.autor %>
+                        </option>
+
+                    <% }) %>
+
+                </select>
+
+                <div class="livro-preview" id="livroPreview">
+
+                    <img id="previewCapa" src="">
+
+                    <div class="livro-preview-info">
+                        <h4 id="previewTitulo"></h4>
+                        <p id="previewAutor"></p>
+                    </div>
+
+                </div>
+
+                <label>Progresso de leitura</label>
+
+                <div class="progresso-row">
+
+                    <input
+                        type="number"
+                        id="paginaAtualInput"
+                        min="0"
+                        placeholder="Pág. atual"
+                    >
+
+                    <span>de</span>
+
+                    <input
+                        type="number"
+                        id="totalPaginasInput"
+                        min="0"
+                        placeholder="Total"
+                    >
+
+                    <span>páginas</span>
+
+                </div>
+
+                <label for="textoPost">O que você achou até aqui?</label>
+
+                <textarea
+                    id="textoPost"
+                    rows="5"
+                    placeholder="Compartilhe sua opinião sobre o livro..."
+                    required
+                ></textarea>
+
+                <div class="checkbox-row">
+
+                    <input type="checkbox" id="spoilerCheck">
+                    <label for="spoilerCheck">Este post contém spoilers</label>
+
+                </div>
+
+                <div class="acoes">
+
+                    <a href="/" class="btn-cancelar">Cancelar</a>
+                    <button type="submit" class="btn-publicar">Publicar</button>
+
+                </div>
+
+            </form>
+
+        <% } %>
+
+    </div>
+
+</div>
+
+<script>
+
+const livroSelect = document.getElementById("livroSelect");
+
+function atualizarPreview() {
+
+    const opcao = livroSelect.options[livroSelect.selectedIndex];
+
+    document.getElementById("previewCapa").src = opcao.dataset.capa;
+    document.getElementById("previewTitulo").textContent = opcao.value;
+    document.getElementById("previewAutor").textContent = opcao.dataset.autor;
+
+    document.getElementById("paginaAtualInput").value = opcao.dataset.pagina || 0;
+    document.getElementById("totalPaginasInput").value = opcao.dataset.total || 0;
+
+    
+    if(opcao.dataset.total) {
+        document.getElementById("paginaAtualInput").max = opcao.dataset.total;
+    }
+}
+
+if (livroSelect) {
+
+    atualizarPreview();
+
+    livroSelect.addEventListener("change", atualizarPreview);
+
+}
+
+const formNovoPost = document.getElementById("formNovoPost");
+
+if (formNovoPost) {
+
+    formNovoPost.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const opcao = livroSelect.options[livroSelect.selectedIndex];
+
+        const livro = livroSelect.value;
+        const autor = opcao.dataset.autor;
+        const capa = opcao.dataset.capa;
+        const texto = document.getElementById("textoPost").value.trim();
+        const spoiler = document.getElementById("spoilerCheck").checked;
+
+        const paginaAtual = document.getElementById("paginaAtualInput").value;
+        const totalPaginas = document.getElementById("totalPaginasInput").value;
+
+        if (!texto) {
+            alert("Escreva algo sobre sua leitura.");
+            return;
+        }
+
+        
+        if (parseInt(paginaAtual) > parseInt(totalPaginas)) {
+            alert(`A página atual não pode ser maior do que o total de páginas do livro (${totalPaginas}).`);
+            return;
+        }
+
+        const textoFinal = spoiler
+            ? `[CONTÉM SPOILER] ${texto}`
+            : texto;
+
+        try {
+
+            const respostaPost = await fetch("/posts", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    livro,
+                    autor,
+                    capa,
+                    texto: textoFinal
+                })
+            });
+
+            const dadosPost = await respostaPost.json();
+
+            if (!respostaPost.ok) {
+                alert(dadosPost.msg || "Erro ao publicar.");
+                return;
+            }
+
+            
+            if (paginaAtual || totalPaginas) {
+
+                const livroId = opcao.dataset.id;
+
+                if (livroId) {
+
+                    await fetch(`/estante/${livroId}/progresso`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ paginaAtual, totalPaginas })
+                    });
+
+                }
+
+            }
+
+            window.location.href = "/";
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão ao publicar.");
+        }
+
+    });
+
+}
+
+</script>
+
+<%- include('partials/footer') %>

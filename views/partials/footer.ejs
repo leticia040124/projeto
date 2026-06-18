@@ -1,0 +1,38 @@
+</main>
+
+<footer class="footer">
+
+LitFeed © 2026
+
+</footer>
+
+<script>
+
+const menuBtn = document.getElementById("menuBtn");
+const sideMenu = document.getElementById("sideMenu");
+const mainContent = document.querySelector(".main-content");
+
+menuBtn.addEventListener("click", () => {
+
+    sideMenu.classList.toggle("open");
+
+    if (window.innerWidth >= 900) {
+        mainContent.classList.toggle("menu-open");
+    }
+
+});
+
+window.addEventListener("resize", () => {
+
+    if (window.innerWidth < 900) {
+        mainContent.classList.remove("menu-open");
+    }
+
+});
+
+</script>
+
+</script>
+
+</body>
+</html>

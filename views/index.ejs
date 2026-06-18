@@ -1,0 +1,802 @@
+<%- include('partials/header', { title: 'LitFeed' , usuario: usuario }) %>
+
+    <style>
+        .usuarios-sugestao {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .usuario-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f9f6f1;
+            padding: 15px;
+            border-radius: 14px;
+        }
+
+        .avatar-mini {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #6B4F3A;
+        }
+
+        .info-usuario {
+            flex: 1;
+        }
+
+        .info-usuario p {
+            margin: 3px 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .info-usuario small {
+            color: #999;
+        }
+
+        .perfil-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .btn-seguir {
+            border: none;
+            background: #6B4F3A;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-seguir:hover {
+            background: #58402f;
+        }
+
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background: #f5f1ea;
+            color: #2b2b2b;
+        }
+
+        .dashboard {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+        }
+
+        .card h2 {
+            margin: 0 0 15px;
+            color: #6B4F3A;
+            font-size: 17px;
+        }
+
+        .livro-atual {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .livro-atual .capa {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .livro-atual-info {
+            flex: 1;
+        }
+
+        .livro-atual-info h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+        }
+
+        .livro-atual-info p {
+            margin: 0 0 10px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9e1d6;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: var(--progresso, 0%);
+            background: #6B4F3A;
+            border-radius: 20px;
+            transition: width .3s;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .progress-info span {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .progress-edit {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .progress-edit input {
+            width: 70px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .progress-edit input[readonly] {
+            background-color: #f0ede6;
+            color: #555;
+            cursor: not-allowed;
+            border-color: #e0ded8;
+        }
+
+        .progress-edit button {
+            padding: 6px 12px;
+            background: #6B4F3A;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .progress-edit button:hover {
+            background: #58402f;
+        }
+
+        .empty {
+            color: #777;
+            font-style: italic;
+        }
+
+        .atalho-post {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 14px 16px;
+            background: #f9f6f1;
+            border-radius: 12px;
+            transition: background .2s;
+        }
+
+        .atalho-post:hover {
+            background: #f0ebe2;
+        }
+
+        .atalho-post img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #6B4F3A;
+        }
+
+        .atalho-post span {
+            color: #999;
+            font-size: 14px;
+        }
+
+        #feedPosts {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .post-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #6B4F3A;
+        }
+
+        .post-author strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .post-author span {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .post-book {
+            display: flex;
+            gap: 12px;
+            background: #f9f6f1;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .post-book img {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .post-book-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .post-book-info strong {
+            font-size: 14px;
+        }
+
+        .post-book-info span {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .post-nota {
+            color: #d9a441;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .post-nota i.vazia {
+            color: #ddd;
+        }
+
+        .post-texto {
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+
+        .post-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #777;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+        }
+
+        .post-actions button:hover {
+            color: #6B4F3A;
+        }
+
+        .post-actions i.fa-heart.curtido {
+            color: #c0392b;
+        }
+
+        .comentarios {
+            margin-top: 14px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+
+        .comentario {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .comentario strong {
+            color: #6B4F3A;
+        }
+
+        .form-comentario {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .form-comentario input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-comentario input:focus {
+            border-color: #6B4F3A;
+        }
+
+        .form-comentario button {
+            padding: 9px 16px;
+            background: #6B4F3A;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .livros-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .livros-grid img {
+            width: 90px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+    </style>
+
+    <div class="dashboard">
+
+        <section class="card">
+
+            <h2>Continuar lendo</h2>
+
+            <% if(livroAtual){ %>
+
+                <div class="livro-atual">
+
+                    <img src="<%= livroAtual.capa %>" class="capa">
+
+                    <div class="livro-atual-info">
+
+                        <h3>
+                            <%= livroAtual.titulo %>
+                        </h3>
+                        <p>
+                            <%= livroAtual.autor %>
+                        </p>
+
+                        <% const total=livroAtual.totalPaginas || 0; const atual=livroAtual.paginaAtual || 0; const
+                            porcentagem=total> 0
+                            ? Math.min(100, Math.round((atual / total) * 100))
+                            : 0;
+                            %>
+
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="--progresso: <%= porcentagem %>%;"></div>
+                            </div>
+
+                            <div class="progress-info">
+
+                                <span id="progressoTexto">
+                                    <% if(total> 0){ %>
+                                        <%= atual %> de <%= total %> páginas (<%= porcentagem %>%)
+                                    <% } else { %>
+                                        Total de páginas não informado
+                                    <% } %>
+                                </span>
+
+                                <div class="progress-edit">
+
+                                    <input type="number" id="paginaAtualInput" placeholder="Pág. atual" min="0"
+                                        max="<%= total %>" value="<%= atual %>">
+
+                                    <input type="number" id="totalPaginasInput" placeholder="Total" min="0"
+                                        value="<%= total %>"  value="<%= atual %>">
+
+                                    <button id="btnSalvarProgresso" data-id="<%= livroAtual._id %>">
+                                        Atualizar
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                    </div>
+
+                </div>
+
+                <% } else { %>
+
+                    <p class="empty">
+                        Você ainda não está lendo nenhum livro.
+                        <% if(usuario){ %>
+                            Adicione um na <a href="/estante">sua estante</a> e marque como "Lendo".
+                        <% } %>
+                    </p>
+
+                <% } %>
+
+        </section>
+
+        <% if(usuario){ %>
+
+            <section class="card">
+
+                <div class="atalho-post" onclick="window.location.href='/posts/novo'">
+
+                    <img src="<%= usuario.fotoUrl || '/images/default-avatar.svg' %>">
+
+                    <span>Compartilhe sua opinião sobre o que está lendo...</span>
+
+                </div>
+
+            </section>
+
+        <% } %>
+
+        <section class="card">
+
+            <h2>Novidades</h2>
+
+            <% if(usuario && typeof sugestoes !== 'undefined' && sugestoes && sugestoes.length > 0){ %>
+
+                <section class="card">
+
+                    <h2> Leitores para seguir</h2>
+
+                    <div class="usuarios-sugestao">
+
+                        <% sugestoes.forEach(user=> { %>
+
+                            <div class="usuario-item">
+
+                                <a href="/profile/<%= user.username %>" class="perfil-link">
+
+                                    <img src="<%= user.fotoUrl || '/images/default-avatar.svg' %>"
+                                        class="avatar-mini">
+
+                                </a>
+
+                                <div class="info-usuario">
+
+                                    <a href="/profile/<%= user.username %>" class="perfil-link">
+
+                                        <strong>
+                                            <%= user.nome %>
+                                        </strong>
+
+                                    </a>
+
+                                    <p>
+                                        @<%= user.username %>
+                                    </p>
+
+                                    <small>
+                                        <%= (user.seguidores || []).length %> seguidores
+                                    </small>
+
+                                </div>
+
+                                <button class="btn-seguir" onclick="seguirUsuario('<%= user._id %>', this)">
+                                    Seguir
+                                </button>
+
+                            </div>
+
+                        <% }) %>
+
+                    </div>
+
+                </section>
+
+            <% } %>
+
+            <div id="feedPosts">
+
+                <% if(posts.length===0){ %>
+
+                    <p class="empty">Nenhuma publicação ainda.</p>
+
+                <% } %>
+
+                <% posts.forEach(post=> { %>
+
+                    <div class="post-card" data-id="<%= post._id %>">
+
+                        <div class="post-header">
+
+                            <img src="<%= (post.usuario && post.usuario.fotoUrl) || '/images/default-avatar.svg' %>"
+                                class="post-avatar">
+
+                            <div class="post-author">
+                                <strong>
+                                    <%= post.usuario ? post.usuario.nome : 'Usuário' %>
+                                </strong>
+                                <span>@<%= post.usuario ? post.usuario.username : 'desconhecido' %></span>
+                            </div>
+
+                        </div>
+
+                        <% if(post.livro){ %>
+
+                            <div class="post-book">
+
+                                <img src="<%= post.capa %>">
+
+                                <div class="post-book-info">
+
+                                    <strong>
+                                        <%= post.livro %>
+                                    </strong>
+                                    <span>
+                                        <%= post.autor %>
+                                    </span>
+
+                                    <% if(post.nota){ %>
+
+                                        <div class="post-nota">
+
+                                            <% for(let i=1; i <=5; i++){ %>
+                                                <i class="fa-solid fa-star <%= i > post.nota ? 'vazia' : '' %>"></i>
+                                            <% } %>
+
+                                        </div>
+
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+                            <% if(post.texto){ %>
+                                <p class="post-texto">
+                                    <%= post.texto %>
+                                </p>
+                            <% } %>
+
+                        <% } %>
+
+                        <div class="post-actions">
+
+                            <button class="btn-curtir" data-id="<%= post._id %>">
+                                <i class="fa-solid fa-heart"></i>
+                                <span class="curtidas-count">
+                                    <%= post.curtidas %>
+                                </span>
+                            </button>
+
+                            <button class="btn-toggle-comentarios">
+                                <i class="fa-solid fa-comment"></i>
+                                <%= post.comentarios.length %>
+                            </button>
+
+                        </div>
+
+                        <div class="comentarios" style="display:none;">
+
+                            <% post.comentarios.forEach(comentario=> { %>
+
+                                <div class="comentario">
+                                    <strong>
+                                        <%= comentario.usuario %>:
+                                    </strong>
+                                    <%= comentario.texto %>
+                                </div>
+
+                            <% }) %>
+
+                            <% if(usuario){ %>
+
+                                <div class="form-comentario">
+
+                                    <input type="text" placeholder="Escreva um comentário..."
+                                        class="input-comentario">
+
+                                    <button class="btn-comentar" data-id="<%= post._id %>">
+                                        Enviar
+                                    </button>
+
+                                </div>
+
+                            <% } %>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <h2>Livros em alta</h2>
+
+            <% if(livrosEmAlta.length===0){ %>
+
+                <p class="empty">Nenhum livro adicionado ainda.</p>
+
+            <% } %>
+
+            <div class="livros-grid">
+
+                <% livrosEmAlta.forEach(livro=> { %>
+
+                    <img src="<%= livro.capa %>" title="<%= livro.titulo %> - <%= livro.autor %>">
+
+                <% }) %>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+        const btnSalvarProgresso = document.getElementById("btnSalvarProgresso");
+
+        if (btnSalvarProgresso) {
+            btnSalvarProgresso.addEventListener("click", async () => {
+                const id = btnSalvarProgresso.dataset.id;
+                const paginaAtual = document.getElementById("paginaAtualInput").value;
+                const totalPaginas = document.getElementById("totalPaginasInput").value;
+
+                if (parseInt(paginaAtual) > parseInt(totalPaginas)) {
+                    alert(`A página atual não pode ser maior do que o total de páginas do livro (${totalPaginas}).`);
+                    return;
+                }
+
+                try {
+                    const resposta = await fetch(`/estante/${id}/progresso`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ paginaAtual, totalPaginas })
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (resposta.ok) {
+                        location.reload();
+                    } else {
+                        alert(dados.msg || "Erro ao salvar progresso.");
+                    }
+                } catch (erro) {
+                    console.error(erro);
+                    alert("Erro de conexão ao salvar progresso.");
+                }
+            });
+        }
+
+        document.querySelectorAll(".btn-curtir").forEach(botao => {
+            botao.addEventListener("click", async () => {
+                const id = botao.dataset.id;
+
+                try {
+                    const resposta = await fetch(`/posts/${id}/curtir`, {
+                        method: "POST"
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (resposta.ok) {
+                        botao.querySelector(".curtidas-count").textContent = dados.curtidas;
+                        botao.querySelector("i").classList.add("curtido");
+                    } else {
+                        alert(dados.msg || "Erro ao curtir.");
+                    }
+                } catch (erro) {
+                    console.error(erro);
+                    alert("Erro de conexão.");
+                }
+            });
+        });
+
+        document.querySelectorAll(".btn-toggle-comentarios").forEach(botao => {
+            botao.addEventListener("click", () => {
+                const card = botao.closest(".post-card");
+                const comentarios = card.querySelector(".comentarios");
+                comentarios.style.display = comentarios.style.display === "none" ? "block" : "none";
+            });
+        });
+
+        document.querySelectorAll(".btn-comentar").forEach(botao => {
+            botao.addEventListener("click", async () => {
+                const id = botao.dataset.id;
+                const card = botao.closest(".post-card");
+                const input = card.querySelector(".input-comentario");
+                const texto = input.value.trim();
+
+                if (!texto) return;
+
+                try {
+                    const resposta = await fetch(`/posts/${id}/comentar`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ texto })
+                    });
+
+                    const dados = await resposta.json();
+
+                    if (resposta.ok) {
+                        location.reload();
+                    } else {
+                        alert(dados.msg || "Erro ao comentar.");
+                    }
+                } catch (erro) {
+                    console.error(erro);
+                    alert("Erro de conexão.");
+                }
+            });
+        });
+
+        async function seguirUsuario(id, botao) {
+            try {
+                const resposta = await fetch(`/users/${id}/seguir`, {
+                    method: "POST"
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    alert(dados.msg);
+                    return;
+                }
+
+                botao.innerText = "✓ Seguindo";
+                botao.disabled = true;
+            } catch (erro) {
+                console.log(erro);
+                alert("Erro ao seguir usuário.");
+            }
+        }
+    </script>
+
+<%- include('partials/footer') %>

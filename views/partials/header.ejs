@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+
+<title><%= title %></title>
+
+<link rel="stylesheet" href="/stylesheets/index.css">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+/>
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+<button id="menuBtn" class="menu-btn">
+<i class="fa-solid fa-bars"></i>
+</button>
+
+<div class="logo">
+LitFeed
+</div>
+
+<div class="search-wrapper">
+
+<input
+class="search-bar"
+type="text"
+id="searchInput"
+placeholder="Buscar livros, autores..."
+autocomplete="off"
+>
+
+<div id="searchResults" class="search-results"></div>
+
+</div>
+
+<a href="/profile" class="profile-btn">
+<i class="fa-solid fa-user"></i>
+</a>
+
+</header>
+
+<nav id="sideMenu" class="side-menu">
+
+<a href="/">
+<i class="fa-solid fa-house"></i>
+Início
+</a>
+
+<a href="/estante">
+    <i class="fa-solid fa-book"></i>
+    Minha Estante
+</a>
+
+<a href="/avaliacoes">
+<i class="fa-solid fa-star"></i>
+Avaliações
+</a>
+
+<a href="/posts/comunidade">
+<i class="fa-solid fa-users"></i>
+Comunidade
+</a>
+
+<a href="/profile">
+<i class="fa-solid fa-user"></i>
+Perfil
+</a>
+
+<a href="/auth/logout">
+<i class="fa-solid fa-right-from-bracket"></i>
+Sair
+</a>
+
+</nav>
+
+<style>
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 500px;
+}
+
+.search-results {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.12);
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 200;
+}
+
+.search-results.active {
+    display: block;
+}
+
+.search-result-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #2b2b2b;
+    transition: background .15s;
+}
+
+.search-result-item:hover {
+    background: #f5f1ea;
+}
+
+.search-result-item img {
+    width: 36px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.search-result-info strong {
+    display: block;
+    font-size: 14px;
+}
+
+.search-result-info span {
+    font-size: 12px;
+    color: #999;
+}
+
+.search-result-empty {
+    padding: 14px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    font-style: italic;
+}
+
+</style>
+
+<script>
+
+(function () {
+
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+
+    let timeoutId = null;
+
+    searchInput.addEventListener("input", () => {
+
+        const termo = searchInput.value.trim();
+
+        clearTimeout(timeoutId);
+
+        if (!termo) {
+            searchResults.classList.remove("active");
+            searchResults.innerHTML = "";
+            return;
+        }
+
+        timeoutId = setTimeout(() => {
+            buscarLivros(termo);
+        }, 400);
+
+    });
+
+    document.addEventListener("click", (e) => {
+
+        if (!e.target.closest(".search-wrapper")) {
+            searchResults.classList.remove("active");
+        }
+
+    });
+
+    async function buscarLivros(termo) {
+
+        try {
+
+            const resposta = await fetch(
+                `https://openlibrary.org/search.json?q=${encodeURIComponent(termo)}&limit=6`
+            );
+
+            const dados = await resposta.json();
+
+            searchResults.innerHTML = "";
+
+            if (!dados.docs || dados.docs.length === 0) {
+
+                searchResults.innerHTML =
+                    '<div class="search-result-empty">Nenhum livro encontrado.</div>';
+
+                searchResults.classList.add("active");
+
+                return;
+
+            }
+
+            dados.docs.forEach(livro => {
+
+                const titulo = livro.title || "Sem título";
+
+                const autor = livro.author_name
+                    ? livro.author_name[0]
+                    : "Autor desconhecido";
+
+                const capa = livro.cover_i
+                    ? `https://covers.openlibrary.org/b/id/${livro.cover_i}-M.jpg`
+                    : "https://via.placeholder.com/72x104?text=Sem+Capa";
+
+                const workKey = livro.key
+                    ? livro.key.replace("/works/", "")
+                    : "";
+
+                if (!workKey) {
+                    return;
+                }
+
+                const item = document.createElement("a");
+
+                item.href = `/livro/${workKey}`;
+                item.className = "search-result-item";
+
+                item.innerHTML = `
+                    <img src="${capa}">
+                    <div class="search-result-info">
+                        <strong>${titulo}</strong>
+                        <span>${autor}</span>
+                    </div>
+                `;
+
+                searchResults.appendChild(item);
+
+            });
+
+            searchResults.classList.add("active");
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            searchResults.innerHTML =
+                '<div class="search-result-empty">Erro ao buscar livros.</div>';
+
+            searchResults.classList.add("active");
+
+        }
+
+    }
+
+})();
+
+</script>
+
+<main class="main-content">

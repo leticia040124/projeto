@@ -1,0 +1,218 @@
+<%- include('partials/header', { title: 'Cadastro' }) %>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f5f1ea;
+    color: #2b2b2b;
+  }
+
+  .signup-hero {
+    text-align: center;
+    padding: 50px 20px 20px;
+  }
+
+  .signup-hero h1 {
+    display: inline-block;
+    font-size: 30px;
+    color: #6B4F3A;
+    background: #fff;
+    padding: 16px 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    margin: 0 auto 25px;
+  }
+
+  .signup-hero p {
+    max-width: 600px;
+    margin: 12px auto;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .signup-hero .destaques {
+    text-align: left;
+    max-width: 600px;
+    margin: 20px auto;
+    color: #444;
+  }
+
+  .signup-hero .destaques p {
+    text-align: left;
+    margin: 8px 0;
+  }
+
+  .signup-form-container {
+    background: #fff;
+    padding: 35px 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin: 30px auto 80px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    box-sizing: border-box;
+  }
+
+  #signupForm {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  #signupForm input {
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  #signupForm input:focus {
+    border-color: #6B4F3A;
+  }
+
+  #signupForm button {
+    padding: 12px;
+    background: #6B4F3A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  #signupForm button:hover {
+    background: #58402f;
+  }
+
+  .signup-footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .signup-footer a {
+    color: #6B4F3A;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .signup-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<section class="signup-hero">
+
+  <h1>Crie sua conta no LitFeed</h1>
+
+  <p>
+    Junte-se à comunidade e tenha acesso a uma experiência feita para leitores. Ao se cadastrar, você garante:
+  </p>
+
+</section>
+
+<div class="signup-form-container">
+
+  <form id="signupForm">
+
+    <input
+      type="text"
+      id="nome"
+      placeholder="Nome completo"
+      required
+      minlength="3"
+    >
+
+    <input
+      type="text"
+      id="username"
+      placeholder="Nome de usuário"
+      required
+      minlength="3"
+      pattern="^[a-zA-Z0-9_.]+$"
+      title="Apenas letras, números, pontos ou underlines."
+    >
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Email válido"
+      required
+    >
+
+    <input
+      type="password"
+      id="senha"
+      placeholder="Senha (mínimo 6 caracteres)"
+      required
+      minlength="6"
+    >
+
+    <button type="submit">Criar minha conta</button>
+
+  </form>
+
+  <div class="signup-footer">
+    Já tem uma conta? <a href="/profile">Entre aqui</a>
+  </div>
+
+</div>
+
+<script>
+
+document
+.getElementById("signupForm")
+.addEventListener(
+    "submit",
+    async (e) => {
+
+        e.preventDefault();
+
+        const nome = document.getElementById("nome").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const senha = document.getElementById("senha").value;
+
+        if (senha.length < 6) {
+            alert("A senha precisa ter no mínimo 6 caracteres!");
+            return;
+        }
+
+        try {
+
+            const resposta = await fetch("/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nome, username, email, senha })
+            });
+
+            const dados = await resposta.json();
+
+            if (resposta.ok) {
+                alert(dados.msg || "Cadastro realizado com sucesso!");
+                window.location.href = "/profile";
+            } else {
+                alert(dados.msg || "Erro ao realizar o cadastro.");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro de conexão com o servidor!");
+        }
+
+    }
+);
+
+</script>
+
+<%- include('partials/footer') %>

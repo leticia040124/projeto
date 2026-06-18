@@ -1,0 +1,177 @@
+<%- include('partials/header', { title: 'Entrar' }) %>
+
+<style>
+.login-page{
+    min-height:70vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px 20px;
+}
+
+.login-container{
+    width:100%;
+    max-width:430px;
+    background:white;
+    padding:40px;
+    border-radius:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.login-container h1{
+    text-align:center;
+    color:#6B4F3A;
+    margin-bottom:30px;
+    font-size:38px;
+}
+
+.campo{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#f4f4f4;
+    margin-bottom:18px;
+    box-sizing:border-box;
+}
+
+.btn-login{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#6B4F3A;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.btn-login:hover{
+    background:#5A4331;
+}
+
+.form-footer{
+    text-align:center;
+    margin-top:20px;
+    color:#777;
+}
+
+.form-footer a{
+    color:#6B4F3A;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.form-footer a:hover{
+    text-decoration:underline;
+}
+</style>
+
+<div class="login-page">
+
+    <div class="login-container">
+
+        <h1>Entrar</h1>
+
+        <form id="loginForm">
+
+            <input
+                class="campo"
+                type="email"
+                id="email"
+                placeholder="E-mail"
+                required
+            >
+
+            <input
+                class="campo"
+                type="password"
+                id="senha"
+                placeholder="Senha"
+                required
+            >
+
+            <button
+                class="btn-login"
+                type="submit"
+            >
+                Entrar
+            </button>
+
+            <div class="form-footer">
+                Não tem uma conta?
+                <a href="/signup">
+                    Cadastre-se aqui
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.getElementById("loginForm")
+.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const email =
+        document.getElementById("email").value;
+
+    const senha =
+        document.getElementById("senha").value;
+
+    try {
+
+        const resposta =
+            await fetch("/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+                body: JSON.stringify({
+                    email,
+                    senha
+                })
+            });
+
+        const data =
+            await resposta.json();
+
+        if (resposta.ok) {
+
+            localStorage.setItem(
+                "usuario",
+                JSON.stringify(data.usuario)
+            );
+
+            window.location.href =
+                "/profile";
+
+        } else {
+
+            alert(
+                data.msg ||
+                "Erro ao fazer login"
+            );
+
+        }
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert(
+            "Erro ao fazer login"
+        );
+
+    }
+
+});
+</script>
+
+<%- include('partials/footer') %>
